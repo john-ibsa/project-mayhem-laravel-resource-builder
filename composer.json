@@ -1,0 +1,29 @@
+{
+    "name": "project-mayhem/laravel-resource-builder",
+    "description": "Generate fully built and tested API resources based on the Project Mayhem standards.",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "John Blomkamp",
+            "email": "john.blomkamp@incendiaryblue.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "autoload": {
+        "psr-4": {
+            "ProjectMayhem\\ResourceBuilder\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "ProjectMayhem\\ResourceBuilder\\ResourceBuilderServiceProvider"
+            ]
+        }
+    },
+    "require": {
+        "php": "^7.2.5",
+        "laravel/framework": "^7.0"
+    }
+}
