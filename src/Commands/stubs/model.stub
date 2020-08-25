@@ -1,0 +1,26 @@
+<?php
+
+namespace App\Models;
+
+use App\Traits\Uuids;
+use Illuminate\Database\Eloquent\Model;
+
+class {{className}} extends Model
+{
+    use Uuids;
+
+    protected $primaryKey = 'id';
+    public $incrementing = false;
+    protected $keyType = 'string';
+
+    protected $table = '{{tableName}}';
+
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array
+     */
+    protected $fillable = [
+        'name',
+    ];
+}

@@ -1,0 +1,39 @@
+<?php
+
+namespace App;
+
+/**
+ *
+ * This class outlines the various codes we return throughout the API.
+ * These codes are NOT the HTTP codes but rather our codes to know where issues might occur
+ * within the API and throughout our codebase.
+ *
+ * Class ApiCode
+ * @package App
+ *
+ */
+
+class ApiCode
+{
+
+    /**
+     * General 200 - 299
+     */
+    public const UNATHORIZED_EXCEPTION = 200;
+    public const VALIDATION_EXCEPTION = 201;
+    public const GENERIC_HTTP_EXCEPTION = 202;
+    public const UNHANDLED_EXCEPTION = 203;
+    public const HEALTH_CHECK_OK = 204;
+    public const UNATHENTICATED_EXCEPTION = 205;
+
+    // Browser and/or request error 400 - 499
+    public const NOT_FOUND = 404;
+    public const HTTP_NOT_FOUND = 404;
+    public const GONE_ERROR = 410;
+
+    /**
+     * FALL BACK
+     */
+    public const SOMETHING_WENT_WRONG = 500;
+
+} // NB: LEAVE THIS LINE AND COMMENT AS IS SPARKY, WE NEED TO APPEND CODE BEFORE THE CLASS!

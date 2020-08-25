@@ -1,0 +1,325 @@
+<?php
+
+namespace App\Http\Controllers\API;
+
+use App\Http\Controllers\Controller;
+
+use Illuminate\Http\Request;
+use Illuminate\Http\Response as HttpResponse;
+
+use DB;
+use Hash;
+use Log;
+
+use Carbon\Carbon;
+use Illuminate\Support\Str;
+
+use App\Models\{{className}};
+
+use App\ApiCode;
+use MarcinOrlowski\ResponseBuilder\ResponseBuilder;
+
+use Spatie\Activitylog\Models\Activity;
+
+use App\Http\Requests\{{className}}Store;
+use App\Http\Requests\{{className}}Update;
+use App\Http\Requests\{{className}}Destroy;
+
+class AuthController extends Controller
+{
+    public function __construct()
+    {
+        $this->middleware('auth:sanctum');
+    }
+
+    /**
+     * @api {get} /:tenant_id/{{routeName}} All
+     * @apiName {{className}}All
+     * @apiGroup {{className}}
+     * @apiVersion v1.0.0
+     *
+     * @apiHeader {String} Authorization Your access token provided as `Bearer YOUR_ACCESS_TOKEN`.
+     *
+     * @apiDescription Get all {{className}} records.
+     *
+     * @apiSuccessExample {json} Success Response
+     *     HTTP/2 200 OK
+     *      {
+     *          "success": true,
+     *          "code": {{codePrefix}}00,
+     *          "locale": "en",
+     *          "message": "OK",
+     *          "data": {
+     *              "{{plural}}": [
+     *                  {
+     *                      "id": "8c6ed34c-7a88-4187-9094-360bd08a1425",
+     *                      "name": "{{className}} Name",
+     *                      ...
+     *                  }
+     *              ]
+     *          }
+     *      }
+     *
+     * @apiSuccessExample {json} Error Response
+     *     HTTP/2 500 Internal Server Error
+     *      {
+     *          "success": false,
+     *          "code": {{codePrefix}}01,
+     *          "locale": "en",
+     *          "message": "Error #{{codePrefix}}01",
+     *          "data": null,
+     *          "debug": []
+     *      }
+     *
+     */
+    public function index(Request $request)
+    {
+        try {
+            ${{variableName}} = {{className}}::get();
+
+            return ResponseBuilder::success([
+                "{{plural}}" => ${{variableName}},
+            ], ApiCode::{{responseName}}_INDEX_SUCCESS, NULL, HttpResponse::HTTP_OK);
+        } catch (\Exception $e) {
+            \Log::error($e);
+
+            return ResponseBuilder::error(ApiCode::{{responseName}}_INDEX_ERROR, NULL, NULL, HttpResponse::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    /**
+     * @api {post} /:tenant_id/{{routeName}} Store
+     * @apiName {{className}}Store
+     * @apiGroup {{className}}
+     * @apiVersion v1.0.0
+     *
+     * @apiHeader {String} Authorization Your access token provided as `Bearer YOUR_ACCESS_TOKEN`.
+     *
+     * @apiDescription Store a new record for the {{className}} resource.
+     *
+     * @apiParam {String} name {{className}} name
+     *
+     * @apiParamExample {json} Request Body
+     *      {
+     *          "name": "{{className}} Name"
+     *      }
+     *
+     * @apiSuccessExample {json} Success Response
+     *     HTTP/2 200 OK
+     *      {
+     *          "success": true,
+     *          "code": {{codePrefix}}20,
+     *          "locale": "en",
+     *          "message": "OK",
+     *          "data": {
+     *              "{{singular}}": {
+     *                  "name": "Test Client",
+     *                  ...
+     *              }
+     *          }
+     *      }
+     *
+     * @apiSuccessExample {json} Error Response
+     *     HTTP/2 500 Internal Server Error
+     *      {
+     *          "success": false,
+     *          "code": {{codePrefix}}21,
+     *          "locale": "en",
+     *          "message": "Error #{{codePrefix}}21",
+     *          "data": null,
+     *          "debug": []
+     *      }
+     */
+    public function store({{className}}Store $request)
+    {
+        DB::beginTransaction();
+
+        try {
+
+            ${{variableName}} = {{className}}::create([
+                'name' => $request->name,
+            ]);
+
+            activity()->performedOn(${{variableName}})->log('{{className}} created');
+
+            DB::commit();
+
+            return ResponseBuilder::success([
+                "{{variableName}}" => ${{variableName}},
+            ], ApiCode::{{responseName}}_STORE_SUCCESS, NULL, HttpResponse::HTTP_OK);
+        } catch (\Exception $e) {
+            \Log::error($e);
+
+            DB::rollBack();
+
+            return ResponseBuilder::error(ApiCode::{{responseName}}_STORE_ERROR, NULL, NULL, HttpResponse::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    /**
+     * @api {get} /:tenant_id/{{routeName}}/:slug Show
+     * @apiName {{className}}Show
+     * @apiGroup {{className}}
+     * @apiVersion v1.0.0
+     *
+     * @apiHeader {String} Authorization Your access token provided as `Bearer YOUR_ACCESS_TOKEN`.
+     *
+     * @apiDescription This returns a single {{className}} record.
+     *
+     * @apiSuccessExample {json} Success Response
+     *     HTTP/2 200 OK
+     *      {
+     *          "success": true,
+     *          "code": {{codePrefix}}04,
+     *          "locale": "en",
+     *          "message": "OK",
+     *          "data": {
+     *              "{{singular}}": {
+     *                  "id": "c8c3566f-ec32-4503-9a47-cec7c228d7c0",
+     *                  "name": "Test {{className}}",
+     *                  ...
+     *              }
+     *          }
+     *      }
+     * @apiSuccessExample {json} Error Response
+     *     HTTP/2 500 Internal Server Error
+     *      {
+     *          "success": false,
+     *          "code": {{codePrefix}}05,
+     *          "locale": "en",
+     *          "message": "Error #{{codePrefix}}05",
+     *          "data": null,
+     *          "debug": []
+     *      }
+     */
+    public function show(Request $request, {{className}} ${{variableName}})
+    {
+        try {
+
+            return ResponseBuilder::success([
+                "{{singular}}" => ${{variableName}},
+            ], ApiCode::{{responseName}}_SHOW_SUCCESS, NULL, HttpResponse::HTTP_OK);
+        } catch (\Exception $e) {
+            \Log::error($e);
+            return ResponseBuilder::error(ApiCode::{{responseName}}_SHOW_ERROR, NULL, NULL, HttpResponse::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    /**
+     * @api {put} /:tenant_id/{{routeName}}/:slug Update
+     * @apiName {{className}}Update
+     * @apiGroup {{className}}
+     * @apiVersion v1.0.0
+     *
+     * @apiHeader {String} Authorization Your access token provided as `Bearer YOUR_ACCESS_TOKEN`.
+     *
+     * @apiDescription Update a {{className}} record.
+     *
+     * @apiParam {String} name {{className}} name
+     *
+     * @apiParamExample {json} Request Body
+     *      {
+     *          "name": "New {{className}} Test"
+     *      }
+     *
+     * @apiSuccessExample {json} Success Response
+     *     HTTP/2 200 OK
+     *      {
+     *          "success": true,
+     *          "code": {{codePrefix}}06,
+     *          "locale": "en",
+     *          "message": "OK",
+     *          "data": {
+     *              "{{singular}}": {
+     *                  "id": "c8c3566f-ec32-4503-9a47-cec7c228d7c0",
+     *                  "name": "New {{className}} Test"
+     *              }
+     *          }
+     *      }
+     *
+     * @apiSuccessExample {json} Error Response
+     *     HTTP/2 500 Internal Server Error
+     *      {
+     *          "success": false,
+     *          "code": 1407,
+     *          "locale": "en",
+     *          "message": "Error #1405",
+     *          "data": null,
+     *          "debug": []
+     *      }
+     */
+    public function update({{className}}Update $request, {{className}} ${{variableName}})
+    {
+        DB::beginTransaction();
+
+        try {
+
+            ${{variableName}}->name = $request->name;
+            ${{variableName}}->save();
+
+            DB::commit();
+
+            return ResponseBuilder::success([
+                "{{singular}}" => ${{variableName}},
+            ], ApiCode::{{responseName}}_UPDATE_SUCCESS, NULL, HttpResponse::HTTP_OK);
+        } catch (\Exception $e) {
+            \Log::error($e);
+
+            DB::rollBack();
+
+            return ResponseBuilder::error(ApiCode::{{responseName}}_UPDATE_ERROR, NULL, NULL, HttpResponse::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    /**
+     * @api {delete} /:tenant_id/{{routeName}}/:slug Delete
+     * @apiName {{className}}Delete
+     * @apiGroup {{className}}
+     * @apiVersion v1.0.0
+     *
+     * @apiHeader {String} Authorization Your access token provided as `Bearer YOUR_ACCESS_TOKEN`.
+     *
+     * @apiDescription Delete a {{className}} record.
+     *
+     * @apiSuccessExample {json} Success Response
+     *     HTTP/2 200 OK
+     *      {
+     *          "success": true,
+     *          "code": {{codePrefix}}08,
+     *          "locale": "en",
+     *          "message": "OK",
+     *          "data": null
+     *      }
+     *
+     * @apiSuccessExample {json} Error Response
+     *     HTTP/2 500 Internal Server Error
+     *      {
+     *          "success": false,
+     *          "code": {{codePrefix}}07,
+     *          "locale": "en",
+     *          "message": "Error #{{codePrefix}}07",
+     *          "data": null,
+     *          "debug": []
+     *      }
+     */
+    public function destroy({{className}}Destroy $request, {{className}} ${{variableName}})
+    {
+        DB::beginTransaction();
+
+        try {
+
+            ${{variableName}}->delete();
+
+            DB::commit();
+
+            return ResponseBuilder::success(NULL, ApiCode::{{responseName}}_DESTROY_SUCCESS, NULL, HttpResponse::HTTP_OK);
+        } catch (\Exception $e) {
+            \Log::error($e);
+
+            DB::rollBack();
+
+            return ResponseBuilder::error(ApiCode::{{responseName}}_DESTROY_ERROR, NULL, NULL, HttpResponse::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+    
+}

@@ -24,6 +24,7 @@
     },
     "require": {
         "php": "^7.2.5",
-        "laravel/framework": "^7.0"
+        "laravel/framework": "^7.0",
+        "marcin-orlowski/laravel-api-response-builder": "^7.1"
     }
 }

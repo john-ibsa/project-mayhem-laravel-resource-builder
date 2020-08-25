@@ -1,0 +1,15 @@
+   
+    /**
+    * {{className}} Resource - {{codePrefix}}00 - {{codePrefix}}99
+    */
+    public const {{responseCode}}_INDEX_SUCCESS = {{codePrefix}}00;
+    public const {{responseCode}}_INDEX_SERVER_ERROR = {{codePrefix}}01;
+    public const {{responseCode}}_SHOW_SUCCESS = {{codePrefix}}10;
+    public const {{responseCode}}_SHOW_SERVER_ERROR = {{codePrefix}}11;
+    public const {{responseCode}}_STORE_SUCCESS = {{codePrefix}}20;
+    public const {{responseCode}}_STORE_SERVER_ERROR = {{codePrefix}}21;
+    public const {{responseCode}}_UPDATE_SUCCESS = {{codePrefix}}30;
+    public const {{responseCode}}_UPDATE_SERVER_ERROR = {{codePrefix}}31;
+    public const {{responseCode}}_DESTROY_SUCCESS = {{codePrefix}}40;
+    public const {{responseCode}}_DESTROY_SERVER_ERROR = {{codePrefix}}41;
+}
