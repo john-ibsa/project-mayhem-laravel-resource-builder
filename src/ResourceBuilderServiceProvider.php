@@ -1,6 +1,6 @@
 <?php
 
-namespace ProjectMayhem\ResourceBuilder;
+namespace IncendiaryBlue\ResourceBuilder;
 
 use Illuminate\Support\ServiceProvider;
 
@@ -13,11 +13,11 @@ class ResourceBuilderServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        $this->app->singleton('command.projectmayhem.resource-builder', function ($app) {
-            return $app['ProjectMayhem\ResourceBuilder\Commands\BuildResourceCommand'];
+        $this->app->singleton('command.incendiaryblue.resource-builder', function ($app) {
+            return $app['IncendiaryBlue\ResourceBuilder\Commands\BuildResourceCommand'];
         });
 
-        $this->commands('command.projectmayhem.resource-builder');
+        $this->commands('command.incendiaryblue.resource-builder');
     }
 
     /**

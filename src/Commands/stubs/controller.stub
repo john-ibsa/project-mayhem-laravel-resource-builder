@@ -21,6 +21,8 @@ use MarcinOrlowski\ResponseBuilder\ResponseBuilder;
 
 use Spatie\Activitylog\Models\Activity;
 
+use App\Http\Requests\{{className}}Index;
+use App\Http\Requests\{{className}}Show;
 use App\Http\Requests\{{className}}Store;
 use App\Http\Requests\{{className}}Update;
 use App\Http\Requests\{{className}}Destroy;

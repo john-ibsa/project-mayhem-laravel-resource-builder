@@ -1,6 +1,6 @@
 <?php
 
-namespace ProjectMayhem\ResourceBuilder\Commands;
+namespace IncendiaryBlue\ResourceBuilder\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Str;
@@ -194,7 +194,7 @@ class BuildResourceCommand extends Command
                 '{{codePrefix}}',
             ], 
             [
-                $this->names['response_code'],
+                $this->names['class_name'],
                 $this->names['response_code'],
                 Str::snake(Str::plural(strtolower($this->option('name')))),
                 Str::snake(Str::singular(strtolower($this->option('name')))),
