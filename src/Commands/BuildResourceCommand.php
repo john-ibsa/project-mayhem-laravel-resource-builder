@@ -12,7 +12,7 @@ class BuildResourceCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'resource-builder:build {--name=} {--code=} {--info=} {--overwrite=}';
+    protected $signature = 'resource-builder:build {--name=} {--code=}';
 
     /**
      * The console command description.
@@ -49,43 +49,40 @@ class BuildResourceCommand extends Command
 
 
         // Tell the user we are starting the process
-        $this->info('Starting the build...');
-        $this->line(' ');
+        $this->comment('Hold on there Winston! We\'re checking the project suitability...');
 
         // Let's start by generating all the required class, route and resource names
         $names = $this->generateNames($this->option('name'));
                 
         // Is the resource already built?
-        if (!$this->option('overwrite') || $this->option('overwrite') == false) {
-            if (file_exists(getcwd() . '/app/Models/' . $this->names['model'] . '.php')) {
-                $this->error('Resource Already Exists!');
-                return false;
-            }
-        }
-
-        // Does ApiCode.php already exist
-        $apiCodeFileExists = $this->checkApiCodeFile();
-
-        // Does config/response_builder already exist
-        $responseBuilderConfigFileExists = $this->checkResponseBuilderConfigFile();
-
-        // This is the base Laravel App Path
-        $baseLaravelPath = getcwd();
+        // if (file_exists(getcwd() . '/app/Models/' . $this->names['model'] . '.php')) {
+        //     $this->error('Oh Damn! This resource already exists.');
+        //     return false;
+        // }
+        
+        $this->info('Right! Well done, your code base is suitable let\'s get started');
 
         // If the ApiCode does not exist let's create it
-        if (!$apiCodeFileExists) {
-            $this->info('Creating ApiCode.php...');
-            file_put_contents($baseLaravelPath . '/app/ApiCode.php', file_get_contents(__DIR__ . '/stubs/api_code_base.stub'));
+        if (!$this->checkApiCodeFile()) {
+            $this->info('Creating ApiCode.php');
+            file_put_contents(getcwd() . '/app/ApiCode.php', file_get_contents(__DIR__ . '/stubs/api_code_base.stub'));
         }
         
         // If the ApiCode does not exist let's create it
-        if (!$responseBuilderConfigFileExists) {
-            $this->info('Creating config/response_builder.php...');
-            file_put_contents($baseLaravelPath . '/config/response_builder.php', file_get_contents(__DIR__ . '/stubs/response_builder_config.stub'));
+        if (!$this->checkResponseBuilderConfigFile()) {
+            $this->info('Creating config/response_builder.php');
+            file_put_contents(getcwd() . '/config/response_builder.php', file_get_contents(__DIR__ . '/stubs/response_builder_config.stub'));
         }
-
-        $this->comment('ApiCode Prefix: ' . $this->getNextApiCode());
-        $this->line(' ');
+        
+        // If the UUID Trait does not exist let's create it
+        if (!$this->checkUuidTraitsFile()) {
+            $this->info('Creating app/Traits/Uuids.php');
+            // Create a folder if it doesn't already exist
+            if (!file_exists(getcwd() . '/app/Traits')) {
+                mkdir(getcwd() . '/app/Traits');
+            }
+            file_put_contents(getcwd() . '/app/Traits/Uuids.php', file_get_contents(__DIR__ . '/stubs/uuid_trait.stub'));
+        }
 
         // Create the Model
         $this->createModel();
@@ -99,12 +96,15 @@ class BuildResourceCommand extends Command
         // Create the Migration
         $this->createMigration();
 
+        // Create the Tests
+        $this->createTests();
+        
         // Create the Requests
         $this->createApiCodes();
-
+        
         // Create the Requests
         $this->createRoute();
-
+        
         // Create the Api Doc Json Order Values
         $this->addToApiDocJson();
 
@@ -121,6 +121,7 @@ class BuildResourceCommand extends Command
     public function generateNames($name)
     {
         $names['class_name']        = str_replace(' ','', ucwords(Str::singular($this->option('name'))));
+        $names['migration_name']    = str_replace(' ','', ucwords(Str::plural($this->option('name'))));
         $names['permissions_name']  = str_replace(' ','.', Str::lower((Str::singular($this->option('name')))));
         $names['model']             = str_replace(' ','', ucwords(Str::singular($this->option('name'))));
         $names['route']             = Str::kebab(Str::plural(strtolower($this->option('name'))));
@@ -128,12 +129,6 @@ class BuildResourceCommand extends Command
         $names['request']           = Str::studly(Str::singular($this->option('name')));
         $names['table_name']        = Str::snake(Str::plural($this->option('name')));
         $names['response_code']     = Str::upper(Str::snake(Str::singular($this->option('name'))));
-
-        if ($this->option('info')) {
-            foreach ($names as $k => $v) {
-                $this->comment(str_replace('_',' ', ucwords($k)) . ': ' . $v);
-            }
-        }
         
         $this->names = $names;
 
@@ -158,6 +153,16 @@ class BuildResourceCommand extends Command
     public function checkResponseBuilderConfigFile()
     {
         return file_exists(getcwd() . '/config/response_builder.php');
+    }
+    
+    /**
+     * Generate the required class names, singulars and plurals.
+     *
+     * @return int
+     */
+    public function checkUuidTraitsFile()
+    {
+        return file_exists(getcwd() . '/app/Traits/Uuids.php');
     }
 
     /**
@@ -318,7 +323,7 @@ class BuildResourceCommand extends Command
                 '{{tableName}}'
             ], 
             [
-                $this->names['class_name'], 
+                $this->names['migration_name'], 
                 $this->names['table_name']
             ],  
             file_get_contents(__DIR__ . '/stubs/migration.stub') 
@@ -331,6 +336,45 @@ class BuildResourceCommand extends Command
     }
 
     /**
+     * Generate the tests file.
+     *
+     * @return int
+     */
+    public function createTests()
+    {        
+        // We get the contents of the stub and replace the tags
+        $testContent = str_replace(
+            [
+                '{{className}}',
+                '{{routeName}}',
+                '{{plural}}',
+                '{{singular}}',
+                '{{tableName}}',
+                '{{codePrefix}}',
+            ], 
+            [
+                $this->names['class_name'], 
+                $this->names['route'], 
+                Str::snake(Str::plural(strtolower($this->option('name')))),
+                Str::snake(Str::singular(strtolower($this->option('name')))),
+                $this->names['table_name'], 
+                $this->option('code'), 
+            ],  
+            file_get_contents(__DIR__ . '/stubs/test.stub') 
+        );
+
+        // Create a folder if it doesn't already exist
+        if (!file_exists(getcwd() . '/tests/Feature/API')) {
+            mkdir(getcwd() . '/tests/Feature/API');
+        }
+
+        // Then we write the contents to the file
+        file_put_contents(getcwd() . '/tests/Feature/API/' . $this->names['class_name'] . 'Test.php', $testContent);
+        
+        return true;
+    }
+
+    /**
      * Append the resource to the routes file.
      *
      * @return int
@@ -338,7 +382,17 @@ class BuildResourceCommand extends Command
     public function createRoute()
     {        
         // Define the line to append
-        $routeContent = 'Route::resource(\'' . $this->names['route'] . '\', \'API\\' . $this->names['controller'] . 'Controller\');';
+        $routeContent = str_replace(
+            [
+                '{{routeName}}',
+                '{{controllerName}}'
+            ], 
+            [
+                $this->names['route'], 
+                $this->names['controller']
+            ],  
+            file_get_contents(__DIR__ . '/stubs/routes.stub') 
+        );
 
         // Then we write the contents to the file
         file_put_contents(getcwd() . '/routes/api.php', $routeContent, FILE_APPEND);

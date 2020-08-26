@@ -13,10 +13,10 @@ class {{className}}Store extends FormRequest
      */
     public function authorize()
     {
-        return $this->user()
-                    ->hasAnyPermission([
-                        '{{permissionName}}.store'
-                    ]);
+        return true;
+        // return $this->user()->hasAnyPermission([
+        //     '{{permissionName}}.store'
+        // ]);
     }
 
     /**

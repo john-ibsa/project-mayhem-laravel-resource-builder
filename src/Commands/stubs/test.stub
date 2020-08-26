@@ -1,0 +1,214 @@
+<?php
+
+namespace Tests\Feature\API;
+
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\WithFaker;
+use Tests\TestCase;
+use Laravel\Sanctum\Sanctum;
+
+use App\Models\User;
+use App\Models\{{className}};
+
+class {{className}}Test extends TestCase
+{
+    /**
+     * Test the all method
+     *
+     * @return void
+     */
+    public function test_{{plural}}_all()
+    {
+        // $user = User::first();
+
+        // Sanctum::actingAs($user);
+
+        ${{singular}} = {{className}}::create([
+            'name' => 'Test All Name'
+        ]);
+
+        $response = $this->getJson('/api/v1/{{routeName}}');
+
+        $response->assertStatus(200)
+                ->assertJson([
+                    'success' => true,
+                    'code' => {{codePrefix}}00,
+                    'data' => [
+                        '{{plural}}' => [
+                            [
+                                'id' => ${{singular}}->id,
+                                'name' => ${{singular}}->name,
+                            ]
+                        ],
+                    ]
+                ]);
+    }
+
+    /**
+     * Test the show method
+     *
+     * @return void
+     */
+    public function test_{{plural}}_show()
+    {
+        // $user = User::first();
+
+        // Sanctum::actingAs($user);
+
+        ${{singular}} = {{className}}::create([
+            'name' => 'Test Show Name'
+        ]);
+
+        $response = $this->getJson('/api/v1/{{routeName}}/' . ${{singular}}->id);
+
+        $response->assertStatus(200)
+                ->assertJson([
+                    'success' => true,
+                    'code' => {{codePrefix}}10,
+                    'data' => [
+                        '{{singular}}' => [
+                            'id' => ${{singular}}->id,
+                            'name' => 'Test Show Name',
+                        ],
+                    ]
+                ]);
+    }
+
+    /**
+     * Test the store method
+     *
+     * @return void
+     */
+    public function test_{{plural}}_store()
+    {
+        // $user = User::first();
+
+        // Sanctum::actingAs($user);
+
+        ${{singular}} = [
+            "name" => "",
+        ];
+
+        $response = $this->postJson('/api/v1/{{routeName}}', ${{singular}});
+
+        $response->assertStatus(422)
+                ->assertJson([
+                    'success' => false,
+                    'code' => 201,
+                    'data' => [
+                        'messages' => [
+                            'name' => [
+                                __('validation.required', ['attribute' => 'name'])
+                            ],
+                        ]
+                    ]
+                ]);
+
+        $this->assertDatabaseMissing('{{tableName}}', ['name' => '']);
+
+        ${{singular}} = [
+            "name" => "Test Name",
+        ];
+
+        $response = $this->postJson('/api/v1/{{routeName}}', ${{singular}});
+
+        $response->assertStatus(200)
+                ->assertJson([
+                    'success' => true,
+                    'code' => {{codePrefix}}20,
+                    'data' => [
+                        '{{singular}}' => [
+                            'name' => 'Test Name',
+                        ],
+                    ]
+                ]);
+
+        $this->assertDatabaseHas('{{tableName}}', ['name' => 'Test Name']);
+    }
+
+    /**
+     * Test the update method
+     *
+     * @return void
+     */
+    public function test_{{plural}}_update()
+    {
+        // $user = User::first();
+
+        // Sanctum::actingAs($user);
+
+        ${{singular}} = {{className}}::create([
+            'name' => 'Test Update Name'
+        ]);
+
+        $edit = [
+            "name" => "",
+        ];
+
+        $response = $this->putJson('/api/v1/{{routeName}}/' . ${{singular}}->id, $edit);
+
+        $response->assertStatus(422)
+                ->assertJson([
+                    'success' => false,
+                    'code' => 201,
+                    'data' => [
+                        'messages' => [
+                            'name' => [
+                                __('validation.required', ['attribute' => 'name'])
+                            ],
+                        ]
+                    ]
+                ]);
+
+        $this->assertDatabaseMissing('{{tableName}}', ['name' => '']);
+
+        $edit = [
+            "name" => "Test Name Change",
+        ];
+
+        $response = $this->putJson('/api/v1/{{routeName}}/' . ${{singular}}->id, $edit);
+
+        $response->assertStatus(200)
+                ->assertJson([
+                    'success' => true,
+                    'code' => {{codePrefix}}30,
+                    'data' => [
+                        '{{singular}}' => [
+                            'id' =>  ${{singular}}->id,
+                            'name' => 'Test Name Change',
+                        ],
+                    ]
+                ]);
+
+        $this->assertDatabaseHas('{{tableName}}', ['name' => 'Test Name Change']);
+    }
+
+    /**
+     * Test the destroy method
+     *
+     * @return void
+     */
+    public function test_{{plural}}_destroy()
+    {
+        // $user = User::first();
+
+        // Sanctum::actingAs($user);
+
+        ${{singular}} = {{className}}::create([
+            'name' => 'Test Destroy Name'
+        ]);
+
+        $this->assertDatabaseHas('{{tableName}}', ['name' => 'Test Destroy Name']);
+
+        $response = $this->deleteJson('/api/v1/{{routeName}}/' . ${{singular}}->id);
+
+        $response->assertStatus(200)
+                ->assertJson([
+                    'success' => true,
+                    'code' => {{codePrefix}}40,
+                    'data' => null
+                ]);
+        
+        $this->assertDatabaseMissing('{{tableName}}', ['name' => 'Test Destroy Name']);
+    }
+}

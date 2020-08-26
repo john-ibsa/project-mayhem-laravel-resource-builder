@@ -31,7 +31,7 @@ class {{className}}Controller extends Controller
 {
     public function __construct()
     {
-        $this->middleware('auth:sanctum');
+        // $this->middleware('auth:sanctum');
     }
 
     /**
@@ -84,7 +84,7 @@ class {{className}}Controller extends Controller
         } catch (\Exception $e) {
             \Log::error($e);
 
-            return ResponseBuilder::error(ApiCode::{{responseName}}_INDEX_ERROR, NULL, NULL, HttpResponse::HTTP_INTERNAL_SERVER_ERROR);
+            return ResponseBuilder::error(ApiCode::{{responseName}}_INDEX_SERVER_ERROR, NULL, NULL, HttpResponse::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -140,19 +140,17 @@ class {{className}}Controller extends Controller
                 'name' => $request->name,
             ]);
 
-            activity()->performedOn(${{variableName}})->log('{{className}} created');
-
             DB::commit();
 
             return ResponseBuilder::success([
-                "{{variableName}}" => ${{variableName}},
+                "{{singular}}" => ${{variableName}},
             ], ApiCode::{{responseName}}_STORE_SUCCESS, NULL, HttpResponse::HTTP_OK);
         } catch (\Exception $e) {
             \Log::error($e);
 
             DB::rollBack();
 
-            return ResponseBuilder::error(ApiCode::{{responseName}}_STORE_ERROR, NULL, NULL, HttpResponse::HTTP_INTERNAL_SERVER_ERROR);
+            return ResponseBuilder::error(ApiCode::{{responseName}}_STORE_SERVER_ERROR, NULL, NULL, HttpResponse::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -191,16 +189,16 @@ class {{className}}Controller extends Controller
      *          "debug": []
      *      }
      */
-    public function show({{className}}Show $request, {{className}} ${{variableName}})
+    public function show({{className}}Show $request, {{className}} ${{singular}})
     {
         try {
 
             return ResponseBuilder::success([
-                "{{singular}}" => ${{variableName}},
+                "{{singular}}" => ${{singular}},
             ], ApiCode::{{responseName}}_SHOW_SUCCESS, NULL, HttpResponse::HTTP_OK);
         } catch (\Exception $e) {
             \Log::error($e);
-            return ResponseBuilder::error(ApiCode::{{responseName}}_SHOW_ERROR, NULL, NULL, HttpResponse::HTTP_INTERNAL_SERVER_ERROR);
+            return ResponseBuilder::error(ApiCode::{{responseName}}_SHOW_SERVER_ERROR, NULL, NULL, HttpResponse::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -247,26 +245,26 @@ class {{className}}Controller extends Controller
      *          "debug": []
      *      }
      */
-    public function update({{className}}Update $request, {{className}} ${{variableName}})
+    public function update({{className}}Update $request, {{className}} ${{singular}})
     {
         DB::beginTransaction();
 
         try {
 
-            ${{variableName}}->name = $request->name;
-            ${{variableName}}->save();
+            ${{singular}}->name = $request->name;
+            ${{singular}}->save();
 
             DB::commit();
 
             return ResponseBuilder::success([
-                "{{singular}}" => ${{variableName}},
+                "{{singular}}" => ${{singular}},
             ], ApiCode::{{responseName}}_UPDATE_SUCCESS, NULL, HttpResponse::HTTP_OK);
         } catch (\Exception $e) {
             \Log::error($e);
 
             DB::rollBack();
 
-            return ResponseBuilder::error(ApiCode::{{responseName}}_UPDATE_ERROR, NULL, NULL, HttpResponse::HTTP_INTERNAL_SERVER_ERROR);
+            return ResponseBuilder::error(ApiCode::{{responseName}}_UPDATE_SERVER_ERROR, NULL, NULL, HttpResponse::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -301,13 +299,13 @@ class {{className}}Controller extends Controller
      *          "debug": []
      *      }
      */
-    public function destroy({{className}}Destroy $request, {{className}} ${{variableName}})
+    public function destroy({{className}}Destroy $request, {{className}} ${{singular}})
     {
         DB::beginTransaction();
 
         try {
 
-            ${{variableName}}->delete();
+            ${{singular}}->delete();
 
             DB::commit();
 
@@ -317,7 +315,7 @@ class {{className}}Controller extends Controller
 
             DB::rollBack();
 
-            return ResponseBuilder::error(ApiCode::{{responseName}}_DESTROY_ERROR, NULL, NULL, HttpResponse::HTTP_INTERNAL_SERVER_ERROR);
+            return ResponseBuilder::error(ApiCode::{{responseName}}_DESTROY_SERVER_ERROR, NULL, NULL, HttpResponse::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
     

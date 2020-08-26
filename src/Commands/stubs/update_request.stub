@@ -13,10 +13,10 @@ class {{className}}Update extends FormRequest
      */
     public function authorize()
     {
-        return $this->user()
-                    ->hasAnyPermission([
-                        '{{permissionName}}.update'
-                    ]);
+        return true;
+        // return $this->user()->hasAnyPermission([
+        //     '{{permissionName}}.update'
+        // ]);
     }
 
     /**

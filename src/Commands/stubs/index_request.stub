@@ -13,10 +13,10 @@ class {{className}}Index extends FormRequest
      */
     public function authorize()
     {
-        return $this->user()
-                    ->hasAnyPermission([
-                        '{{permissionName}}.index'
-                    ]);
+        return true;
+        // return $this->user()->hasAnyPermission([
+        //     '{{permissionName}}.index'
+        // ]);
     }
 
     /**
@@ -27,7 +27,7 @@ class {{className}}Index extends FormRequest
     public function rules()
     {
         return [
-            'name' => 'required',
+            //
         ];
     }
 }
