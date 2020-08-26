@@ -55,8 +55,7 @@ class {{className}}Controller extends Controller
      *              "{{plural}}": [
      *                  {
      *                      "id": "8c6ed34c-7a88-4187-9094-360bd08a1425",
-     *                      "name": "{{className}} Name",
-     *                      ...
+     *                      "name": "{{className}} Name"
      *                  }
      *              ]
      *          }
@@ -115,8 +114,7 @@ class {{className}}Controller extends Controller
      *          "message": "OK",
      *          "data": {
      *              "{{singular}}": {
-     *                  "name": "Test Client",
-     *                  ...
+     *                  "name": "Test Client"
      *              }
      *          }
      *      }
@@ -178,8 +176,7 @@ class {{className}}Controller extends Controller
      *          "data": {
      *              "{{singular}}": {
      *                  "id": "c8c3566f-ec32-4503-9a47-cec7c228d7c0",
-     *                  "name": "Test {{className}}",
-     *                  ...
+     *                  "name": "Test {{className}}"
      *              }
      *          }
      *      }
