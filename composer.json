@@ -1,39 +1,39 @@
 {
-    "name": "incendiaryblue/laravel-resource-builder",
-    "description": "Generate fully built and tested API resources based on the Project Mayhem standards.",
-    "type": "library",
-    "license": "MIT",
-    "keywords": [
-        "incendiaryblue",
-        "laravel-resource-builder"
-    ],
-    "homepage": "https://gitlab.com/incendiaryblue/laravel-resource-builder",
-    "authors": [
-        {
-            "name": "John Blomkamp",
-            "email": "john.blomkamp@incendiaryblue.com",
-            "homepage": "https://www.incendiaryblue.com",
-            "role": "Developer"
-        }
-    ],
-    "minimum-stability": "dev",
-    "autoload": {
-        "psr-4": {
-            "IncendiaryBlue\\ResourceBuilder\\": "src/"
-        }
-    },
-    "extra": {
-        "laravel": {
-            "providers": [
-                "IncendiaryBlue\\ResourceBuilder\\ResourceBuilderServiceProvider"
-            ]
-        }
-    },
-    "require": {
-        "php": "^7.2.5",
-        "laravel/framework": "^7.0",
-        "marcin-orlowski/laravel-api-response-builder": "^7.1",
-        "spatie/laravel-activitylog": "^3.14",
-        "spatie/laravel-permission": "^3.13"
+  "name": "incendiaryblue/laravel-resource-builder",
+  "description": "Generate fully built and tested API resources based on the Incendiary Blue standards.",
+  "type": "library",
+  "license": "MIT",
+  "keywords": [
+    "incendiaryblue",
+    "laravel-resource-builder"
+  ],
+  "homepage": "https://gitlab.com/incendiaryblue/laravel-resource-builder",
+  "authors": [
+    {
+      "name": "John Blomkamp",
+      "email": "john.blomkamp@incendiaryblue.com",
+      "homepage": "https://www.incendiaryblue.com",
+      "role": "Developer"
     }
+  ],
+  "minimum-stability": "dev",
+  "autoload": {
+    "psr-4": {
+      "IncendiaryBlue\\ResourceBuilder\\": "src/"
+    }
+  },
+  "extra": {
+    "laravel": {
+      "providers": [
+        "IncendiaryBlue\\ResourceBuilder\\ResourceBuilderServiceProvider"
+      ]
+    }
+  },
+  "require": {
+    "php": "^7.2.5",
+    "laravel/framework": "^7.0",
+    "marcin-orlowski/laravel-api-response-builder": "^7.1",
+    "spatie/laravel-activitylog": "^3.14",
+    "spatie/laravel-permission": "^3.13"
+  }
 }
