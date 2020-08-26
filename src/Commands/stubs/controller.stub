@@ -27,7 +27,7 @@ use App\Http\Requests\{{className}}Store;
 use App\Http\Requests\{{className}}Update;
 use App\Http\Requests\{{className}}Destroy;
 
-class AuthController extends Controller
+class {{className}}Controller extends Controller
 {
     public function __construct()
     {
@@ -35,7 +35,7 @@ class AuthController extends Controller
     }
 
     /**
-     * @api {get} /:tenant_id/{{routeName}} All
+     * @api {get} /{{routeName}} All
      * @apiName {{className}}All
      * @apiGroup {{className}}
      * @apiVersion v1.0.0
@@ -74,7 +74,7 @@ class AuthController extends Controller
      *      }
      *
      */
-    public function index(Request $request)
+    public function index({{className}}Index $request)
     {
         try {
             ${{variableName}} = {{className}}::get();
@@ -90,7 +90,7 @@ class AuthController extends Controller
     }
 
     /**
-     * @api {post} /:tenant_id/{{routeName}} Store
+     * @api {post} /{{routeName}} Store
      * @apiName {{className}}Store
      * @apiGroup {{className}}
      * @apiVersion v1.0.0
@@ -159,7 +159,7 @@ class AuthController extends Controller
     }
 
     /**
-     * @api {get} /:tenant_id/{{routeName}}/:slug Show
+     * @api {get} /{{routeName}}/:slug Show
      * @apiName {{className}}Show
      * @apiGroup {{className}}
      * @apiVersion v1.0.0
@@ -194,7 +194,7 @@ class AuthController extends Controller
      *          "debug": []
      *      }
      */
-    public function show(Request $request, {{className}} ${{variableName}})
+    public function show({{className}}Show $request, {{className}} ${{variableName}})
     {
         try {
 
@@ -208,7 +208,7 @@ class AuthController extends Controller
     }
 
     /**
-     * @api {put} /:tenant_id/{{routeName}}/:slug Update
+     * @api {put} /{{routeName}}/:slug Update
      * @apiName {{className}}Update
      * @apiGroup {{className}}
      * @apiVersion v1.0.0
@@ -274,7 +274,7 @@ class AuthController extends Controller
     }
 
     /**
-     * @api {delete} /:tenant_id/{{routeName}}/:slug Delete
+     * @api {delete} /{{routeName}}/:slug Delete
      * @apiName {{className}}Delete
      * @apiGroup {{className}}
      * @apiVersion v1.0.0

@@ -1,6 +1,5 @@
-   
-    /**
-    * {{className}} Resource - {{codePrefix}}00 - {{codePrefix}}99
+   /**
+    * {{className}} RESOURCE - {{codePrefix}}00 - {{codePrefix}}99
     */
     public const {{responseCode}}_INDEX_SUCCESS = {{codePrefix}}00;
     public const {{responseCode}}_INDEX_SERVER_ERROR = {{codePrefix}}01;
@@ -12,4 +11,5 @@
     public const {{responseCode}}_UPDATE_SERVER_ERROR = {{codePrefix}}31;
     public const {{responseCode}}_DESTROY_SUCCESS = {{codePrefix}}40;
     public const {{responseCode}}_DESTROY_SERVER_ERROR = {{codePrefix}}41;
-}
+
+} // DO NOT PLACE ANY CODE BELOW THIS LINE OR CHANGE THIS COMMENT! THIS IS NEEDED FOR APPENDING NEW RESOURCE CODES

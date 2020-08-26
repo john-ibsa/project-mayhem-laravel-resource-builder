@@ -2,6 +2,10 @@
 
 Generate fully built and tested API resources based on the Incendiary Blue internal standards.
 
+## Overview
+
+You can install the package via composer:
+
 ## Requirements
 
 ```bash

@@ -14,9 +14,6 @@ class {{className}}Update extends FormRequest
     public function authorize()
     {
         return $this->user()
-                    ->tenants()
-                    ->find(tenant('id'))
-                    ->pivot
                     ->hasAnyPermission([
                         '{{permissionName}}.update'
                     ]);

@@ -14,9 +14,6 @@ class {{className}}Store extends FormRequest
     public function authorize()
     {
         return $this->user()
-                    ->tenants()
-                    ->find(tenant('id'))
-                    ->pivot
                     ->hasAnyPermission([
                         '{{permissionName}}.store'
                     ]);

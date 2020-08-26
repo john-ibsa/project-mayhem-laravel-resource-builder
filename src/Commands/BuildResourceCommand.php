@@ -12,14 +12,14 @@ class BuildResourceCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'resource-builder:build {--name=} {--code=}';
+    protected $signature = 'resource-builder:build {--name=} {--code=} {--info=} {--overwrite=}';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Generate fully built and tested API resources based on the Project Mayhem API standards.';
+    protected $description = 'Generate fully built and tested API resources based on the Incendiary Blue API standards.';
 
     protected $names;
 
@@ -47,12 +47,21 @@ class BuildResourceCommand extends Command
             return false;
         }
 
+
         // Tell the user we are starting the process
         $this->info('Starting the build...');
         $this->line(' ');
 
         // Let's start by generating all the required class, route and resource names
         $names = $this->generateNames($this->option('name'));
+                
+        // Is the resource already built?
+        if (!$this->option('overwrite') || $this->option('overwrite') == false) {
+            if (file_exists(getcwd() . '/app/Models/' . $this->names['model'] . '.php')) {
+                $this->error('Resource Already Exists!');
+                return false;
+            }
+        }
 
         // Does ApiCode.php already exist
         $apiCodeFileExists = $this->checkApiCodeFile();
@@ -84,6 +93,21 @@ class BuildResourceCommand extends Command
         // Create the Controller
         $this->createController();
 
+        // Create the Requests
+        $this->createRequests();
+
+        // Create the Migration
+        $this->createMigration();
+
+        // Create the Requests
+        $this->createApiCodes();
+
+        // Create the Requests
+        $this->createRoute();
+
+        // Create the Api Doc Json Order Values
+        $this->addToApiDocJson();
+
         $this->info('Resource Built! Go Code ... ');
 
         return true;
@@ -105,10 +129,12 @@ class BuildResourceCommand extends Command
         $names['table_name']        = Str::snake(Str::plural($this->option('name')));
         $names['response_code']     = Str::upper(Str::snake(Str::singular($this->option('name'))));
 
-        foreach ($names as $k => $v) {
-            $this->comment(str_replace('_',' ', ucwords($k)) . ': ' . $v);
+        if ($this->option('info')) {
+            foreach ($names as $k => $v) {
+                $this->comment(str_replace('_',' ', ucwords($k)) . ': ' . $v);
+            }
         }
-
+        
         $this->names = $names;
 
         return true;
@@ -145,7 +171,7 @@ class BuildResourceCommand extends Command
     }
 
     /**
-     * Generate the required class names, singulars and plurals.
+     * Generate the Model File.
      *
      * @return int
      */
@@ -176,7 +202,7 @@ class BuildResourceCommand extends Command
     }
 
     /**
-     * Generate the required class names, singulars and plurals.
+     * Generate the Controller File.
      *
      * @return int
      */
@@ -211,82 +237,143 @@ class BuildResourceCommand extends Command
         }
 
         // Then we write the contents to the file
-        file_put_contents(getcwd() . '/app/Http/Controllers/API/' . $this->names['controller'] . '.php', $controllerContent);
+        file_put_contents(getcwd() . '/app/Http/Controllers/API/' . $this->names['controller'] . 'Controller.php', $controllerContent);
+        
+        return true;
+    }
+
+    /**
+     * Generate the Requests Files.
+     *
+     * @return int
+     */
+    public function createRequests()
+    {        
+
+        // We get the contents of the stub and replace the names
+        $requestIndexContent = str_replace(['{{className}}','{{permissionName}}'], [$this->names['class_name'], $this->names['permissions_name']],  file_get_contents(__DIR__ . '/stubs/index_request.stub') );
+        $requestShowContent = str_replace(['{{className}}','{{permissionName}}'], [$this->names['class_name'], $this->names['permissions_name']],  file_get_contents(__DIR__ . '/stubs/show_request.stub') );
+        $requestStoreContent = str_replace(['{{className}}','{{permissionName}}'], [$this->names['class_name'], $this->names['permissions_name']],  file_get_contents(__DIR__ . '/stubs/store_request.stub') );
+        $requestUpdateContent = str_replace(['{{className}}','{{permissionName}}'], [$this->names['class_name'], $this->names['permissions_name']],  file_get_contents(__DIR__ . '/stubs/update_request.stub') );
+        $requestDestroyContent = str_replace(['{{className}}','{{permissionName}}'], [$this->names['class_name'], $this->names['permissions_name']],  file_get_contents(__DIR__ . '/stubs/destroy_request.stub') );
+
+        // Create a folder if it doesn't already exist
+        if (!file_exists(getcwd() . '/app/Http/Requests')) {
+            mkdir(getcwd() . '/app/Http/Requests');
+        }
+
+        // Then we write the contents to the files
+        file_put_contents(getcwd() . '/app/Http/Requests/' . $this->names['request'] . 'Index.php', $requestIndexContent);
+        file_put_contents(getcwd() . '/app/Http/Requests/' . $this->names['request'] . 'Show.php', $requestShowContent);
+        file_put_contents(getcwd() . '/app/Http/Requests/' . $this->names['request'] . 'Store.php', $requestStoreContent);
+        file_put_contents(getcwd() . '/app/Http/Requests/' . $this->names['request'] . 'Update.php', $requestUpdateContent);
+        file_put_contents(getcwd() . '/app/Http/Requests/' . $this->names['request'] . 'Destroy.php', $requestDestroyContent);
+        
+        return true;
+    }
+
+    /**
+     * Generate the Requests Files.
+     *
+     * @return int
+     */
+    public function createApiCodes()
+    {        
+
+        // Now lets append the API CODE to ApiCode.php
+        // First we remove the last line of the file
+        $apiCodeContent = str_replace('} // DO NOT PLACE ANY CODE BELOW THIS LINE OR CHANGE THIS COMMENT! THIS IS NEEDED FOR APPENDING NEW RESOURCE CODES', '', file_get_contents(getcwd() . '/app/ApiCode.php') );
+        file_put_contents(getcwd() . '/app/ApiCode.php', $apiCodeContent);
+
+        // Then we get the new append content
+        $newApiCodeContent = str_replace(
+            [
+                '{{className}}',
+                '{{responseCode}}',
+                '{{codePrefix}}'
+            ], 
+            [
+                strtoupper(Str::singular($this->option('name'))), 
+                $this->names['response_code'], 
+                $this->option('code')
+            ],  
+        file_get_contents(__DIR__ . '/stubs/api_code.stub') );
+
+        file_put_contents(getcwd() . '/app/ApiCode.php', $newApiCodeContent, FILE_APPEND);
+        
+        return true;
+    }
+
+    /**
+     * Generate the migration file.
+     *
+     * @return int
+     */
+    public function createMigration()
+    {        
+        // We get the contents of the stub and replace the class name and table name
+        $migrationContent = str_replace(
+            [
+                '{{className}}',
+                '{{tableName}}'
+            ], 
+            [
+                $this->names['class_name'], 
+                $this->names['table_name']
+            ],  
+            file_get_contents(__DIR__ . '/stubs/migration.stub') 
+        );
+
+        // Then we write the contents to the file
+        file_put_contents(getcwd() . '/database/migrations/' . date('Y_m_d_His') . '_create_' . $this->names['table_name'] . '_table.php', $migrationContent);
+        
+        return true;
+    }
+
+    /**
+     * Append the resource to the routes file.
+     *
+     * @return int
+     */
+    public function createRoute()
+    {        
+        // Define the line to append
+        $routeContent = 'Route::resource(\'' . $this->names['route'] . '\', \'API\\' . $this->names['controller'] . 'Controller\');';
+
+        // Then we write the contents to the file
+        file_put_contents(getcwd() . '/routes/api.php', $routeContent, FILE_APPEND);
+        
+        return true;
+    }
+
+    /**
+     * Generate the apidoc.json order array and append.
+     *
+     * @return int
+     */
+    public function addToApiDocJson()
+    {        
+
+        if (!file_exists(getcwd() . '/apidoc.json')) {
+            $this->info('apidoc.json not found, skipping.');
+            return true;
+        }
+
+        // First we get the file decode then rewrite
+        $apiDocJsonContent = json_decode(file_get_contents(getcwd() . '/apidoc.json'));
+        
+        $appendContent = (array) array_merge( (array) $apiDocJsonContent->order, array( 
+            $this->names['class_name'],
+            $this->names['class_name'] . 'All',
+            $this->names['class_name'] . 'Show',
+            $this->names['class_name'] . 'Store',
+            $this->names['class_name'] . 'Update',
+            $this->names['class_name'] . 'Destroy',
+        ) );
+        $apiDocJsonContent->order = (array) $appendContent;
+        file_put_contents(getcwd() . '/apidoc.json', json_encode($apiDocJsonContent));
         
         return true;
     }
 
 }
-
-
-// // CREATE MODEL
-// // We get the contents of the stub and replace the class name
-// $modelContent = str_replace(['{{className}}','{{tableName}}'], [$names['class_name'], $names['table']],  file_get_contents(__DIR__ . '/stubs/model.stub') );
-
-// // Then we write the contents to the file
-// file_put_contents($basePath . '/app/Models/' . $names['controller'] . '.php', $modelContent);
-
-// // CREATE CONTROLLER
-// // We get the contents of the stub and replace the class name
-// $controllerContent = str_replace(
-//     [
-//         '{{className}}',
-//         '{{responseName}}',
-//         '{{plural}}',
-//         '{{singular}}',
-//         '{{variableName}}',
-//         '{{routeName}}',
-//         '{{codePrefix}}',
-//     ], 
-//     [
-//         $names['response_code'],
-//         $names['response_code'],
-//         Str::snake(Str::plural(strtolower($this->option('name')))),
-//         Str::snake(Str::singular(strtolower($this->option('name')))),
-//         Str::camel(Str::plural($this->option('name'))),
-//         $names['route'],
-//         $codePrefix,
-//     ],  
-// file_get_contents(__DIR__ . '/stubs/controller.stub') );
-
-// // Then we write the contents to the file
-// file_put_contents($basePath . '/app/Http/Controllers/API/' . $names['controller'] . 'Controller.php', $controllerContent);
-
-// // CREATE REQUESTS
-// // We get the contents of the stub and replace the method name
-// $requestStoreContent = str_replace(['{{className}}','{{permissionName}}'], [$names['class_name'], $names['permissions_name']],  file_get_contents(__DIR__ . '/stubs/store_request.stub') );
-// $requestUpdateContent = str_replace(['{{className}}','{{permissionName}}'], [$names['class_name'], $names['permissions_name']],  file_get_contents(__DIR__ . '/stubs/update_request.stub') );
-// $requestDestroyContent = str_replace(['{{className}}','{{permissionName}}'], [$names['class_name'], $names['permissions_name']],  file_get_contents(__DIR__ . '/stubs/destroy_request.stub') );
-
-// // Then we write the contents to the file
-// file_put_contents($basePath . '/app/Http/Requests/' . $names['request'] . 'Store.php', $requestStoreContent);
-// file_put_contents($basePath . '/app/Http/Requests/' . $names['request'] . 'Update.php', $requestUpdateContent);
-// file_put_contents($basePath . '/app/Http/Requests/' . $names['request'] . 'Destroy.php', $requestDestroyContent);
-
-// // Now lets append the API CODE to ApiCode.php
-// $apiCodeContent = str_replace('}', '', file_get_contents($basePath . '/app/ApiCode.php') );
-// file_put_contents($basePath . '/app/ApiCode.php', $apiCodeContent);
-
-// $newApiCodeContent = str_replace(
-//     [
-//         '{{className}}',
-//         '{{responseCode}}',
-//         '{{codePrefix}}'
-//     ], 
-//     [
-//         strtoupper(Str::singular($this->option('name'))), 
-//         $names['response_code'], 
-//         $codePrefix
-//     ],  
-// file_get_contents(__DIR__ . '/stubs/api_code.stub') );
-
-// file_put_contents($basePath . '/app/ApiCode.php', $newApiCodeContent, FILE_APPEND);
-
-// $this->artisan('make:migration create_' . $names['table'] . '_table');
-
-// // Now let's output the code that needs to be copied
-// $this->line( '---------- COPY THE FOLLOWING INTO routes/api.php --------------' );
-// $this->info( 'Route::resource(\'' . $names['route'] . '\', \'API\\' . $names['controller'] . 'Controller\');' );
-// $this->info('');
-
-// return true;
